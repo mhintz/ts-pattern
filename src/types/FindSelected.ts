@@ -69,7 +69,7 @@ export type FindSelectionUnion<
         }
       : never
     : never
-  : IsPlainObject<p> extends true
+  : p extends object
   ? i extends object
     ? {
         [k in keyof p]: k extends keyof i
@@ -106,10 +106,9 @@ type SelectionToArgs<
     : MixedNamedAndAnonymousSelectError
   : { [k in keyof selections]: selections[k][0] };
 
-export type FindSelected<i, p> = SelectionToArgs<
-  Cast<
-    UnionToIntersection<{} | FindSelectionUnion<i, p>>,
-    Record<string, [unknown, unknown]>
-  >,
-  i
->;
+export type FindSelected<i, p> = FindSelectionUnion<i, p> extends infer union
+  ? SelectionToArgs<
+      Cast<UnionToIntersection<{} | union>, Record<string, [unknown, unknown]>>,
+      i
+    >
+  : never;
